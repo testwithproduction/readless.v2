@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QComboBox,
 )
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 
 
 class AllEntriesTab(QWidget):
@@ -67,8 +68,14 @@ class AllEntriesTab(QWidget):
         for article in articles:
             category = self.feed_manager.get_entry_category(article["link"])
             article_item = QTreeWidgetItem(
-                [f"{article['feed_title']} - {article['title']}"]
+                [
+                    f"{'● ' if not article.get('is_read', False) else ''}{article['feed_title']} - {article['title']}"
+                ]
             )
+            if article.get("is_read", False):
+                article_item.setForeground(0, QColor("black"))
+            else:
+                article_item.setForeground(0, QColor("red"))
             article_item.setData(0, Qt.UserRole, article)
             if category in category_items:
                 category_items[category].addChild(article_item)
@@ -80,6 +87,10 @@ class AllEntriesTab(QWidget):
             return
 
         article = current.data(0, Qt.UserRole)
+        if not article.get("is_read", False):
+            self.feed_manager.set_read_status(article["link"], True)
+            current.setText(0, current.text(0).replace("● ", ""))
+            current.setForeground(0, QColor("black"))
         content = f"<h2>{article['title']}</h2>"
         content += f"<p><i>From: {article['feed_title']}</i></p>"
         if article["published"]:
@@ -97,6 +108,9 @@ class AllEntriesTab(QWidget):
             return
 
         menu = QMenu()
+        mark_read = menu.addAction("Mark as Read")
+        mark_unread = menu.addAction("Mark as Unread")
+        menu.addSeparator()
         change_category = menu.addMenu("Change Category")
 
         # Add category options in sorted order
@@ -113,7 +127,26 @@ class AllEntriesTab(QWidget):
                 )
             )
 
+        mark_read.triggered.connect(
+            lambda: self.set_articles_read_status(valid_items, True)
+        )
+        mark_unread.triggered.connect(
+            lambda: self.set_articles_read_status(valid_items, False)
+        )
         menu.exec_(self.article_tree.viewport().mapToGlobal(position))
+
+    def set_articles_read_status(self, items, is_read):
+        links = [item.data(0, Qt.UserRole)["link"] for item in items]
+        if self.feed_manager.set_read_status(links, is_read):
+            for item in items:
+                text = item.text(0)
+                if is_read:
+                    text = text.replace("● ", "")
+                else:
+                    if not text.startswith("● "):
+                        text = "● " + text
+                item.setText(0, text)
+                item.setForeground(0, QColor("black") if is_read else QColor("red"))
 
     def change_articles_category(self, items, new_category):
         success = True

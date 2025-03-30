@@ -1,8 +1,8 @@
 import feedparser
-import requests
+import sqlite3
 from datetime import datetime
 import pytz
-from typing import List, Dict, Optional
+from typing import List, Dict
 from .database import Database
 
 
@@ -168,3 +168,23 @@ class FeedManager:
         if url not in self.feeds:
             return False
         return self.add_feed(url)  # Re-fetch and update articles
+
+    def set_read_status(self, entry_links: str | List[str], is_read: bool) -> bool:
+        """Set read status for one or multiple feed entries."""
+        with self.db._get_connection() as conn:
+            cursor = conn.cursor()
+            try:
+                if isinstance(entry_links, str):
+                    cursor.execute(
+                        "UPDATE entries SET is_read = ? WHERE link = ?",
+                        (1 if is_read else 0, entry_links),
+                    )
+                else:
+                    cursor.executemany(
+                        "UPDATE entries SET is_read = ? WHERE link = ?",
+                        [(1 if is_read else 0, link) for link in entry_links],
+                    )
+                conn.commit()
+                return True
+            except sqlite3.Error:
+                return False

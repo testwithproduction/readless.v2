@@ -52,6 +52,7 @@ class Database:
                     content TEXT,
                     published TEXT,
                     category_id INTEGER DEFAULT 1,
+                    is_read BOOLEAN DEFAULT 0,
                     FOREIGN KEY (feed_id) REFERENCES feeds (id),
                     FOREIGN KEY (category_id) REFERENCES categories (id)
                 )
