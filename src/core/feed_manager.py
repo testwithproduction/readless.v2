@@ -1,6 +1,5 @@
 import feedparser
-import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 from typing import List, Dict
 from .database import Database
@@ -11,37 +10,24 @@ class FeedManager:
         self.db = Database()
         self.feeds = {feed["url"]: feed for feed in self.get_feeds()}
 
+    # Feed-related operations
     def add_feed(self, url: str) -> bool:
-        """Add a new RSS feed and fetch its initial content."""
+        """Add a new RSS feed without fetching initial content."""
         try:
+            # Validate feed and get title
             feed_data = feedparser.parse(url)
-            if feed_data.get("bozo", 1) == 1:  # Feed parsing error
+            if feed_data.get("bozo", 1) == 1:
                 return False
 
-            feed_title = feed_data.feed.get("title", url)
+            title = feed_data.feed.get("title", url)
+
             feed = {
-                "title": feed_title,
+                "title": title,
                 "url": url,
-                "last_updated": datetime.now(pytz.UTC),
+                "last_updated": datetime(1970, 1, 1, tzinfo=pytz.UTC),
                 "enabled": True,
                 "entries": [],
             }
-
-            # Prepare entries
-            for entry in feed_data.entries:
-                article = {
-                    "title": entry.get("title", "No title"),
-                    "link": entry.get("link", ""),
-                    "description": entry.get("description", ""),
-                    "published": entry.get("published", ""),
-                    "content": (
-                        entry.get("content", [{"value": ""}])[0]["value"]
-                        if "content" in entry
-                        else entry.get("description", "")
-                    ),
-                }
-                feed["entries"].append(article)
-
             return self.db.add_feed(feed)
         except Exception:
             return False
@@ -53,10 +39,6 @@ class FeedManager:
     def get_feeds(self) -> List[Dict]:
         """Get list of all feeds."""
         return self.db.get_feeds()
-
-    def get_articles(self, feed_url: str) -> List[Dict]:
-        """Get articles for a specific feed."""
-        return self.db.get_feed_entries(feed_url)
 
     def toggle_feed_status(self, url: str) -> bool:
         """Toggle feed enabled/disabled status."""
@@ -70,6 +52,56 @@ class FeedManager:
         """Update the title of a feed."""
         return self.db.update_feed(url, {"title": new_title})
 
+    def refresh_feed(self, url: str) -> tuple[bool, int]:
+        """Refresh articles for a specific feed, skipping old entries."""
+        if url not in self.feeds:
+            return False, 0
+
+        # Get last update time
+        last_updated = self.feeds[url].get("last_updated")
+        if not last_updated:
+            success = self.add_feed(url)
+            return success, 0 if not success else len(self.feeds[url]["entries"])
+
+        # Parse new feed data
+        feed_data = feedparser.parse(url)
+        if feed_data.get("bozo", 1) == 1:
+            return False, 0
+
+        # Prepare new entries
+        new_entries = []
+        for entry in feed_data.entries:
+            published = entry.get("published", "")
+            if published:
+                try:
+                    entry_date = datetime.strptime(
+                        published, "%a, %d %b %Y %H:%M:%S %z"
+                    )
+                    if entry_date > last_updated:
+                        article = {
+                            "title": entry.get("title", "No title"),
+                            "link": entry.get("link", ""),
+                            "description": entry.get("description", ""),
+                            "published": published,
+                            "content": (
+                                entry.get("content", [{"value": ""}])[0]["value"]
+                                if "content" in entry
+                                else entry.get("description", "")
+                            ),
+                        }
+                        new_entries.append(article)
+                except ValueError:
+                    continue
+
+        # Update feed with new entries
+        if new_entries:
+            feed = self.feeds[url].copy()
+            feed["entries"] = new_entries
+            feed["last_updated"] = datetime.now(pytz.UTC)
+            return self.db.update_feed(url, feed), len(new_entries)
+        return True, 0
+
+    # Category-related operations
     def get_categories(self) -> List[str]:
         """Get list of all categories."""
         return self.db.get_categories()
@@ -84,90 +116,31 @@ class FeedManager:
 
     def rename_category(self, old_name: str, new_name: str) -> bool:
         """Rename a category."""
-        if old_name == "Uncategorized":
-            return False
+        return self.db.rename_category(old_name, new_name)
 
-        with self.db._get_connection() as conn:
-            cursor = conn.cursor()
-            try:
-                # Get the IDs of the categories
-                cursor.execute("SELECT id FROM categories WHERE name = ?", (old_name,))
-                old_category = cursor.fetchone()
-                if not old_category:
-                    return False
+    # Entry-related operations
+    def get_entries(self, feed_url: str) -> List[Dict]:
+        """Get entries for a specific feed."""
+        return self.db.get_feed_entries(feed_url)
 
-                # Add new category
-                cursor.execute("INSERT INTO categories (name) VALUES (?)", (new_name,))
-                new_category_id = cursor.lastrowid
-
-                # Update entries to use new category
-                cursor.execute(
-                    "UPDATE entries SET category_id = ? WHERE category_id = ?",
-                    (new_category_id, old_category["id"]),
-                )
-
-                # Delete old category
-                cursor.execute(
-                    "DELETE FROM categories WHERE id = ?", (old_category["id"],)
-                )
-                conn.commit()
-                return True
-            except sqlite3.Error:
-                return False
+    def get_all_entries(self) -> List[Dict]:
+        """Get all entries from enabled feeds."""
+        all_entries = []
+        for url, feed in self.feeds.items():
+            if feed["enabled"]:
+                entries = self.get_entries(url)
+                for entry in entries:
+                    entry["feed_title"] = feed["title"]
+                all_entries.extend(entries)
+        return all_entries
 
     def set_entry_category(self, entry_link: str, category: str) -> bool:
         """Set category for a feed entry."""
-        with self.db._get_connection() as conn:
-            cursor = conn.cursor()
-            try:
-                # Get category ID
-                cursor.execute("SELECT id FROM categories WHERE name = ?", (category,))
-                category_data = cursor.fetchone()
-                if not category_data:
-                    return False
-
-                # Update entry's category
-                cursor.execute(
-                    "UPDATE entries SET category_id = ? WHERE link = ?",
-                    (category_data["id"], entry_link),
-                )
-                conn.commit()
-                return True
-            except sqlite3.Error:
-                return False
+        return self.db.set_entry_category(entry_link, category)
 
     def get_entry_category(self, entry_link: str) -> str:
         """Get category for a feed entry."""
-        with self.db._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT c.name
-                FROM entries e
-                JOIN categories c ON e.category_id = c.id
-                WHERE e.link = ?
-                """,
-                (entry_link,),
-            )
-            result = cursor.fetchone()
-            return result["name"] if result else "Uncategorized"
-
-    def get_all_articles(self) -> List[Dict]:
-        """Get all articles from enabled feeds."""
-        all_articles = []
-        for url, feed in self.feeds.items():
-            if feed["enabled"]:
-                articles = self.get_articles(url)
-                for article in articles:
-                    article["feed_title"] = feed["title"]
-                all_articles.extend(articles)
-        return all_articles
-
-    def refresh_feed(self, url: str) -> bool:
-        """Refresh articles for a specific feed."""
-        if url not in self.feeds:
-            return False
-        return self.add_feed(url)  # Re-fetch and update articles
+        return self.db.get_entry_category(entry_link)
 
     def get_entries_by_date_range(
         self, start_date: datetime, end_date: datetime
@@ -181,36 +154,40 @@ class FeedManager:
         Returns:
             List of entries with title, link, description, and category
         """
-        with self.db._get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT e.title, e.link, e.description, c.name as category
-                FROM entries e
-                JOIN categories c ON e.category_id = c.id
-                WHERE e.published BETWEEN ? AND ?
-                ORDER BY e.published DESC
-                """,
-                (start_date, end_date),
-            )
-            return [dict(row) for row in cursor.fetchall()]
+        return self.db.get_entries_by_date_range(start_date, end_date)
 
-    def set_read_status(self, entry_links: str | List[str], is_read: bool) -> bool:
+    def set_entry_read_status(
+        self, entry_links: str | List[str], is_read: bool
+    ) -> bool:
         """Set read status for one or multiple feed entries."""
-        with self.db._get_connection() as conn:
-            cursor = conn.cursor()
-            try:
-                if isinstance(entry_links, str):
-                    cursor.execute(
-                        "UPDATE entries SET is_read = ? WHERE link = ?",
-                        (1 if is_read else 0, entry_links),
-                    )
-                else:
-                    cursor.executemany(
-                        "UPDATE entries SET is_read = ? WHERE link = ?",
-                        [(1 if is_read else 0, link) for link in entry_links],
-                    )
-                conn.commit()
-                return True
-            except sqlite3.Error:
+        return self.db.set_entry_read_status(entry_links, is_read)
+
+    def backdate_feeds(self, days: int) -> bool:
+        """Backdate all feeds' last_updated field by specified number of days and remove entries after the new date.
+
+        Args:
+            days: Number of days to backdate
+
+        Returns:
+            bool: True if successful, False otherwise
+        """
+        try:
+            # Calculate new date
+            new_date = datetime.now(pytz.UTC) - timedelta(days=days)
+
+            # Get all feeds
+            feeds = self.get_feeds()
+            if not feeds:
                 return False
+
+            # Update each feed
+            for feed in feeds:
+                # Update last_updated field
+                self.db.update_feed(feed["url"], {"last_updated": new_date})
+
+                # Remove entries after new date
+                self.db.remove_entries_after_date(feed["url"], new_date)
+
+            return True
+        except Exception:
+            return False

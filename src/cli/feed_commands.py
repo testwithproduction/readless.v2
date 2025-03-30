@@ -22,6 +22,34 @@ def add(url):
 
 
 @feed.command()
+def fetch():
+    """Fetch all feed entries"""
+    feeds = feed_manager.get_feeds()
+    if not feeds:
+        click.echo("No feeds available")
+        return
+
+    total_entries = 0
+    for feed in feeds:
+        if not feed["enabled"]:
+            continue
+        try:
+            success, entry_count = feed_manager.refresh_feed(feed["url"])
+            if success:
+                total_entries += entry_count
+                click.echo(f"Fetched {entry_count} new entries from {feed['title']}")
+            else:
+                click.echo(f"Failed to fetch feed {feed['title']}")
+        except Exception as e:
+            click.echo(f"Failed to fetch feed {feed['title']}: {str(e)}")
+
+    if total_entries > 0:
+        click.echo(f"\nSuccessfully fetched {total_entries} new entries in total")
+    else:
+        click.echo("No new entries found")
+
+
+@feed.command()
 def list():
     """List all feeds"""
     feeds = feed_manager.get_feeds()
@@ -79,3 +107,17 @@ def import_from_file(file_path):
         click.echo("Error: Invalid JSON file format")
     except Exception as e:
         click.echo(f"Error: Failed to import feeds - {str(e)}")
+
+
+@feed.command()
+@click.argument("days", type=int)
+def backdate(days):
+    """Backdate all feeds' last_updated field by specified number of days and remove entries after the new date.
+
+    Args:
+        days: Number of days to backdate
+    """
+    if feed_manager.backdate_feeds(days):
+        click.echo(f"Successfully backdated feeds by {days} days")
+    else:
+        click.echo(f"Failed to backdate feeds by {days} days")

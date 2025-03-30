@@ -9,6 +9,9 @@ from PySide6.QtWidgets import (
     QLabel,
     QMenu,
     QComboBox,
+    QPushButton,
+    QDialog,
+    QApplication,
 )
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QColor
@@ -50,12 +53,19 @@ class AllEntriesTab(QWidget):
         splitter.addWidget(content_panel)
         splitter.setSizes([400, 600])
 
+        # Fetch all button
+        button_layout = QHBoxLayout()
+        self.fetch_all_btn = QPushButton("Fetch All Feeds")
+        self.fetch_all_btn.clicked.connect(self.fetch_all_feeds)
+        button_layout.addWidget(self.fetch_all_btn)
+        layout.addLayout(button_layout)
+
         self.refresh_articles()
 
     def refresh_articles(self):
         self.article_tree.clear()
         categories = self.feed_manager.get_categories()
-        articles = self.feed_manager.get_all_articles()
+        articles = self.feed_manager.get_all_entries()
 
         # Create category items
         category_items = {}
@@ -88,7 +98,7 @@ class AllEntriesTab(QWidget):
 
         article = current.data(0, Qt.UserRole)
         if not article.get("is_read", False):
-            self.feed_manager.set_read_status(article["link"], True)
+            self.feed_manager.set_entry_read_status(article["link"], True)
             current.setText(0, current.text(0).replace("● ", ""))
             current.setForeground(0, QColor("black"))
         content = f"<h2>{article['title']}</h2>"
@@ -137,7 +147,7 @@ class AllEntriesTab(QWidget):
 
     def set_articles_read_status(self, items, is_read):
         links = [item.data(0, Qt.UserRole)["link"] for item in items]
-        if self.feed_manager.set_read_status(links, is_read):
+        if self.feed_manager.set_entry_read_status(links, is_read):
             for item in items:
                 text = item.text(0)
                 if is_read:
@@ -147,6 +157,47 @@ class AllEntriesTab(QWidget):
                         text = "● " + text
                 item.setText(0, text)
                 item.setForeground(0, QColor("black") if is_read else QColor("red"))
+
+    def fetch_all_feeds(self):
+        # Create progress dialog
+        self.progress_dialog = QDialog(self)
+        self.progress_dialog.setWindowTitle("Fetching Feeds")
+        layout = QVBoxLayout(self.progress_dialog)
+        self.progress_label = QLabel("Starting feed fetch...")
+        layout.addWidget(self.progress_label)
+        self.feed_log = QTextBrowser()
+        layout.addWidget(self.feed_log)
+        self.new_entries_label = QLabel("New entries added: 0")
+        layout.addWidget(self.new_entries_label)
+        cancel_btn = QPushButton("Cancel")
+        cancel_btn.clicked.connect(self.progress_dialog.close)
+        layout.addWidget(cancel_btn)
+        self.progress_dialog.show()
+
+        # Fetch feeds with progress updates
+        self._fetch_feeds_with_progress()
+
+    def _fetch_feeds_with_progress(self):
+        feeds = self.feed_manager.feeds
+        for url, feed in feeds.items():
+            if feed["enabled"]:
+                self.progress_label.setText(f'Fetching: {feed["title"]}')
+                self.feed_log.append(f'Fetching: {feed["title"]}')
+                QApplication.processEvents()  # Update UI
+                new_entries, count = self.feed_manager.refresh_feed(url)
+                if new_entries:
+                    self.feed_log.append(f"Added {count} new entries")
+                    current_count = int(self.new_entries_label.text().split(": ")[1])
+                    self.new_entries_label.setText(
+                        f"New entries added: {current_count + count}"
+                    )
+                else:
+                    self.progress_label.setText(f'Failed to fetch: {feed["title"]}')
+                    self.feed_log.append(f'Failed to fetch: {feed["title"]}')
+                    QApplication.processEvents()
+
+        self.progress_dialog.close()
+        self.refresh_articles()
 
     def change_articles_category(self, items, new_category):
         success = True
