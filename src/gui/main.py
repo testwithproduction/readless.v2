@@ -12,6 +12,7 @@ from PySide6.QtGui import QIcon
 from all_entries_tab import AllEntriesTab
 from feed_sources_tab import FeedSourcesTab
 from categories_tab import CategoriesTab
+from digest_tab import DigestTab
 from core.feed_manager import FeedManager
 
 
@@ -44,9 +45,11 @@ class RSSReader(QMainWindow):
         self.all_entries_tab = AllEntriesTab(self.feed_manager)
         self.feed_sources_tab = FeedSourcesTab(self.feed_manager)
         self.categories_tab = CategoriesTab(self.feed_manager)
+        self.digest_tab = DigestTab(self.feed_manager)
 
         # Add tabs
         self.tab_widget.addTab(self.all_entries_tab, "All Entries")
+        self.tab_widget.addTab(self.digest_tab, "Digest")
         self.tab_widget.addTab(self.feed_sources_tab, "Feed Sources")
         self.tab_widget.addTab(self.categories_tab, "Categories")
 

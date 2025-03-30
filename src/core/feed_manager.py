@@ -169,6 +169,32 @@ class FeedManager:
             return False
         return self.add_feed(url)  # Re-fetch and update articles
 
+    def get_entries_by_date_range(
+        self, start_date: datetime, end_date: datetime
+    ) -> List[Dict]:
+        """Get entries between specified dates.
+
+        Args:
+            start_date: Start date of the range
+            end_date: End date of the range
+
+        Returns:
+            List of entries with title, link, description, and category
+        """
+        with self.db._get_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT e.title, e.link, e.description, c.name as category
+                FROM entries e
+                JOIN categories c ON e.category_id = c.id
+                WHERE e.published BETWEEN ? AND ?
+                ORDER BY e.published DESC
+                """,
+                (start_date, end_date),
+            )
+            return [dict(row) for row in cursor.fetchall()]
+
     def set_read_status(self, entry_links: str | List[str], is_read: bool) -> bool:
         """Set read status for one or multiple feed entries."""
         with self.db._get_connection() as conn:
