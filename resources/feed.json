@@ -1,0 +1,314 @@
+{
+  "feeds": [
+    {
+      "id": 1,
+      "description": "Personal blog about technology and programming",
+      "url": "https://kipp.ly/atom.xml"
+    },
+    {
+      "id": 2,
+      "description": "Latest updates and news from Hugging Face",
+      "url": "https://huggingface.co/blog/feed.xml"
+    },
+    {
+      "id": 3,
+      "description": "AI and machine learning insights from Sebastian Raschka",
+      "url": "https://magazine.sebastianraschka.com/feed"
+    },
+    {
+      "id": 4,
+      "description": "Visual explanations of machine learning concepts",
+      "url": "https://jalammar.github.io/feed.xml"
+    },
+    {
+      "id": 5,
+      "description": "Latest cybersecurity advisories from CISA",
+      "url": "https://www.cisa.gov/cybersecurity-advisories/all.xml"
+    },
+    {
+      "id": 6,
+      "description": "Security insights and updates from Snyk",
+      "url": "https://snyk.io/blog/feed/"
+    },
+    {
+      "id": 7,
+      "description": "Latest security updates from OWASP",
+      "url": "https://owasp.org/feed.xml"
+    },
+    {
+      "id": 8,
+      "description": "Security updates from Microsoft",
+      "url": "https://www.microsoft.com/en-us/security/blog/feed/"
+    },
+    {
+      "id": 9,
+      "description": "Latest cybersecurity news and updates",
+      "url": "https://feeds.feedburner.com/TheHackersNews"
+    },
+    {
+      "id": 10,
+      "description": "Security research and insights from Trend Micro",
+      "url": "http://feeds.trendmicro.com/TrendMicroResearch"
+    },
+    {
+      "id": 11,
+      "description": "Latest hedge fund industry news and updates",
+      "url": "https://www.hedgeweek.com/feed/"
+    },
+    {
+      "id": 12,
+      "description": "Financial careers news and insights",
+      "url": "https://www.efinancialcareers.com/feed/syndication/rss.xml"
+    },
+    {
+      "id": 13,
+      "description": "Latest technology and startup news",
+      "url": "https://feeds.feedburner.com/venturebeat/SZYF"
+    },
+    {
+      "id": 14,
+      "description": "Investment insights from Bridgewater",
+      "url": "https://www.bridgewater.com/index.rss"
+    },
+    {
+      "id": 15,
+      "description": "Semiconductor industry analysis and insights",
+      "url": "https://www.semianalysis.com/feed"
+    },
+    {
+      "id": 16,
+      "description": "Updates and news about Polars DataFrame library",
+      "url": "https://pola.rs/rss.xml"
+    },
+    {
+      "id": 17,
+      "description": "Distributed systems insights from Werner Vogels",
+      "url": "https://www.allthingsdistributed.com/atom.xml"
+    },
+    {
+      "id": 18,
+      "description": "Data visualization and infographics",
+      "url": "https://www.visualcapitalist.com/feed/"
+    },
+    {
+      "id": 19,
+      "description": "Cloud operations insights from AWS",
+      "url": "https://aws.amazon.com/blogs/mt/feed/"
+    },
+    {
+      "id": 20,
+      "description": "Latest updates from Cursor IDE",
+      "url": "https://www.cursor.com/atom.xml"
+    },
+    {
+      "id": 21,
+      "description": "Engineering insights from Meta",
+      "url": "https://engineering.fb.com/feed/"
+    },
+    {
+      "id": 22,
+      "description": "Engineering insights from Instagram",
+      "url": "https://instagram-engineering.com/feed"
+    },
+    {
+      "id": 23,
+      "description": "Latest updates from Kubernetes",
+      "url": "https://kubernetes.io/feed.xml"
+    },
+    {
+      "id": 24,
+      "description": "Machine learning insights from Lilian Weng",
+      "url": "https://lilianweng.github.io/index.xml"
+    },
+    {
+      "id": 25,
+      "description": "Linux kernel news and updates",
+      "url": "https://lwn.net/headlines/rss"
+    },
+    {
+      "id": 26,
+      "description": "Engineering insights from Lyft",
+      "url": "https://eng.lyft.com/feed"
+    },
+    {
+      "id": 27,
+      "description": "Technology insights from Netflix",
+      "url": "https://netflixtechblog.com/feed"
+    },
+    {
+      "id": 28,
+      "description": "Latest updates from Streamlit",
+      "url": "https://blog.streamlit.io/rss/"
+    },
+    {
+      "id": 29,
+      "description": "Engineering insights from GitHub",
+      "url": "https://githubengineering.com/atom.xml"
+    },
+    {
+      "id": 30,
+      "description": "Technology news and analysis",
+      "url": "https://www.thestack.technology/latest/rss/"
+    },
+    {
+      "id": 31,
+      "description": "Systems thinking insights and analysis",
+      "url": "https://thesystemsthinker.com/feed/"
+    },
+    {
+      "id": 32,
+      "description": "Latest research from Microsoft Research",
+      "url": "https://www.microsoft.com/en-us/research/feed/"
+    },
+    {
+      "id": 33,
+      "description": "Network technology insights from Tailscale",
+      "url": "https://tailscale.com/blog/index.xml"
+    },
+    {
+      "id": 34,
+      "description": "Internet infrastructure insights from Cloudflare",
+      "url": "https://blog.cloudflare.com/rss/"
+    },
+    {
+      "id": 35,
+      "description": "Computing insights from ACM Queue",
+      "url": "https://queue.acm.org/rss/feeds/queuecontent.xml"
+    },
+    {
+      "id": 36,
+      "description": "Technology news from IEEE Spectrum",
+      "url": "https://spectrum.ieee.org/feeds/feed.rss"
+    },
+    {
+      "id": 37,
+      "description": "Latest technology news from ACM",
+      "url": "http://rss.acm.org/technews/TechNews.xml"
+    },
+    {
+      "id": 38,
+      "description": "Technology insights and analysis",
+      "url": "https://www.technologyreview.com/feed"
+    },
+    {
+      "id": 39,
+      "description": "Latest from Communications of the ACM",
+      "url": "https://cacm.acm.org/magazine.rss"
+    },
+    {
+      "id": 40,
+      "description": "Raspberry Pi tutorials and projects",
+      "url": "https://pimylifeup.com/feed/"
+    },
+    {
+      "id": 41,
+      "description": "Latest news from Scala programming language",
+      "url": "https://www.scala-lang.org/feed/index.xml"
+    },
+    {
+      "id": 42,
+      "description": "Updates from Continue development tool",
+      "url": "https://blog.continue.dev/rss/"
+    },
+    {
+      "id": 43,
+      "description": "Technology insights from Simon Willison",
+      "url": "https://simonwillison.net/atom/everything/"
+    },
+    {
+      "id": 44,
+      "description": "Latest Google news and updates",
+      "url": "https://9to5google.com/feed/"
+    },
+    {
+      "id": 45,
+      "description": "Latest Apple news and updates",
+      "url": "https://9to5mac.com/feed/"
+    },
+    {
+      "id": 46,
+      "description": "Technology news and analysis",
+      "url": "http://feeds.arstechnica.com/arstechnica/index"
+    },
+    {
+      "id": 47,
+      "description": "Embedded systems news and updates",
+      "url": "https://www.cnx-software.com/feed/"
+    },
+    {
+      "id": 48,
+      "description": "Technology news and gadget reviews",
+      "url": "https://gizmodo.com/feed"
+    },
+    {
+      "id": 49,
+      "description": "Latest technology news and updates",
+      "url": "https://techcrunch.com/feed/"
+    },
+    {
+      "id": 50,
+      "description": "Technology news and analysis",
+      "url": "https://www.theregister.com/headlines.atom"
+    },
+    {
+      "id": 51,
+      "description": "Technology news and reviews",
+      "url": "https://www.theverge.com/rss/index.xml"
+    },
+    {
+      "id": 52,
+      "description": "Hardware news and reviews",
+      "url": "https://www.tomshardware.com/feeds.xml"
+    },
+    {
+      "id": 53,
+      "description": "Technology news and analysis",
+      "url": "https://www.wired.com/feed/rss"
+    },
+    {
+      "id": 54,
+      "description": "Personal finance advice and insights",
+      "url": "http://www.getrichslowly.org/blog/feed/"
+    },
+    {
+      "id": 55,
+      "description": "Travel tips and experiences",
+      "url": "https://www.nomadicmatt.com/feed/"
+    },
+    {
+      "id": 56,
+      "description": "Travel stories and destinations",
+      "url": "http://www.bbc.com/travel/feed.rss"
+    },
+    {
+      "id": 57,
+      "description": "Long-form articles on various topics",
+      "url": "https://waitbutwhy.com/feed"
+    },
+    {
+      "id": 58,
+      "description": "Short-form articles from Wait But Why",
+      "url": "https://waitbutwhy.com/minis/feed"
+    },
+    {
+      "id": 59,
+      "description": "Personal development and lifestyle",
+      "url": "https://tim.blog/feed/"
+    },
+    {
+      "id": 60,
+      "description": "Essays on technology and startups",
+      "url": "http://www.aaronsw.com/2002/feeds/pgessays.rss"
+    },
+    {
+      "id": 61,
+      "description": "AI and machine learning updates from Oxen.ai",
+      "url": "https://ghost.oxen.ai/rss/"
+    },
+    {
+      "id": 62,
+      "description": "Machine learning security research",
+      "url": "https://nicholas.carlini.com/writing/feed.xml"
+    }
+  ]
+}
