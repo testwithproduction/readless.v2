@@ -1,13 +1,16 @@
-General news
-Financial news
-Political news
+General
+Financial
+Political
+Technical
 Gadgets and reviews
-Tech tutorials and guides
-General sports news
-General business news
-Hedge Fund and Private Equities
-Academic news and research
-General health news
+Sports
+Business
+Academic news
+Academic research
+Health
 Fitness and nutrition advice
 Hobbies
 Travel and lifestyle
+CyberSecurity
+AI/ML
+Food and drink
